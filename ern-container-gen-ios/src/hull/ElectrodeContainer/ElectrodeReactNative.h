@@ -82,6 +82,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (instancetype)sharedInstance;
 
+// Whenever you need to destroy the singleton, call this reset method.
++ (void)destroyInstance;
+
 /**
  Start an instance of ElectrodeReactNative with the ability to set
  configurations for the plugins associated with the container. Only needed to be

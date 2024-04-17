@@ -189,6 +189,14 @@ static NSString *enableBundleStore = @"enableBundleStore";
     return sharedInstance;
 }
 
++ (void)destroyInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = nil; // Set sharedInstance to nil
+        onceToken = 0; // reset the once token so that next call to sharedInstance will recreate the instance
+    });
+}
+
 - (UIViewController *)miniAppWithName:(NSString *)name
                            properties:(NSDictionary *_Nullable)properties
 {

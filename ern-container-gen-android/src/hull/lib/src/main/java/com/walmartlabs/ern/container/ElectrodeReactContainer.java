@@ -109,6 +109,12 @@ public class ElectrodeReactContainer {
     }
 
     @SuppressWarnings("unused")
+    public static void destroyInstance() {
+        throwIfNotInitialized();
+        sInstance = null;
+    }
+
+    @SuppressWarnings("unused")
     @Nullable
     public static Activity getCurrentActivity() {
         throwIfNotInitialized();
