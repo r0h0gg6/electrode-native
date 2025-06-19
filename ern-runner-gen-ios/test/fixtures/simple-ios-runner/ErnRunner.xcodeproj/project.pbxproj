@@ -14,7 +14,6 @@
 		6E6BEDD6262F9F10003F9D7B /* MainNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6BEDD3262F9F10003F9D7B /* MainNavigationController.swift */; };
 		6E6BEDD7262F9F10003F9D7B /* RunnerConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6BEDD4262F9F10003F9D7B /* RunnerConfig.swift */; };
 		6E6BEDD8262F9F10003F9D7B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E6BEDD5262F9F10003F9D7B /* AppDelegate.swift */; };
-		7EEF60E22C1977D3008291B7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 7EEF60E02C1977D3008291B7 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,7 +63,7 @@
 		6E6BEDD3262F9F10003F9D7B /* MainNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainNavigationController.swift; sourceTree = "<group>"; };
 		6E6BEDD4262F9F10003F9D7B /* RunnerConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunnerConfig.swift; sourceTree = "<group>"; };
 		6E6BEDD5262F9F10003F9D7B /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		7EEF60E02C1977D3008291B7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		7EEF60E02C1977D3008291B7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,7 +238,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
+			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"$REACT_NATIVE_PATH/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"$REACT_NATIVE_PATH/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
