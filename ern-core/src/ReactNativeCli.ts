@@ -36,6 +36,27 @@ export default class ReactNativeCli {
     this.binaryPath = binaryPath;
   }
 
+  private async shouldUseCommunityCliForVersion(rnVersion: string): Promise<boolean> {
+    return semver.gte(rnVersion.replace(/[\^~]/, ''), '0.77.0');
+  }
+
+  private async shouldUseCommunityCliForProject(cwd?: string): Promise<boolean> {
+    if (!cwd) return false;
+    
+    try {
+      const packageJsonPath = path.join(cwd, 'package.json');
+      if (await fs.pathExists(packageJsonPath)) {
+        const packageJson = await fs.readJSON(packageJsonPath);
+        const rnVersion = packageJson.dependencies?.['react-native'] || '0.60.0';
+        return this.shouldUseCommunityCliForVersion(rnVersion);
+      }
+    } catch (e) {
+      // If we can't determine version, use legacy approach
+    }
+    
+    return false;
+  }
+
   public async init(
     projectName: string,
     rnVersion: string,
@@ -63,7 +84,11 @@ export default class ReactNativeCli {
     }
     const initCmd = `init ${projectName} ${options.join(' ')}`;
 
-    if (semver.gte(rnVersion, '0.60.0')) {
+    if (semver.gte(rnVersion, '0.77.0')) {
+      return execp(
+        `npx --ignore-existing @react-native-community/cli@15.0.1 ${initCmd}`,
+      );
+    } else if (semver.gte(rnVersion, '0.60.0')) {
       return execp(
         `npx --ignore-existing react-native@${rnVersion} ${initCmd}`,
       );
@@ -91,7 +116,12 @@ export default class ReactNativeCli {
     sourceMapOutput?: string;
     resetCache?: boolean;
   }): Promise<BundlingResult> {
-    const bundleCommand = `${this.binaryPath} bundle \
+    // For React Native 0.77.0+ use @react-native-community/cli
+    const shouldUseCommunityCliForProject = await this.shouldUseCommunityCliForProject(workingDir);
+    
+    let bundleCommand: string;
+    if (shouldUseCommunityCliForProject) {
+      bundleCommand = `npx @react-native-community/cli bundle \
 ${entryFile ? `--entry-file=${entryFile}` : ''} \
 ${dev ? '--dev=true' : '--dev=false'} \
 ${platform ? `--platform=${platform}` : ''} \
@@ -99,6 +129,16 @@ ${bundleOutput ? `--bundle-output=${bundleOutput}` : ''} \
 ${assetsDest ? `--assets-dest=${assetsDest}` : ''} \
 ${sourceMapOutput ? `--sourcemap-output=${sourceMapOutput}` : ''} \
 ${resetCache ? '--reset-cache' : ''}`;
+    } else {
+      bundleCommand = `${this.binaryPath} bundle \
+${entryFile ? `--entry-file=${entryFile}` : ''} \
+${dev ? '--dev=true' : '--dev=false'} \
+${platform ? `--platform=${platform}` : ''} \
+${bundleOutput ? `--bundle-output=${bundleOutput}` : ''} \
+${assetsDest ? `--assets-dest=${assetsDest}` : ''} \
+${sourceMapOutput ? `--sourcemap-output=${sourceMapOutput}` : ''} \
+${resetCache ? '--reset-cache' : ''}`;
+    }
 
     await execp(bundleCommand, { cwd: workingDir });
     if (!(await fs.pathExists(bundleOutput))) {
@@ -141,19 +181,40 @@ ${resetCache ? '--reset-cache' : ''}`;
     if (resetCache!!) {
       args.push(`--reset-cache`);
     }
-    spawn(
-      path.join(
-        cwd,
-        `node_modules/.bin/react-native${
-          os.platform() === 'win32' ? '.cmd' : ''
-        }`,
-      ),
-      ['start', ...args],
-      {
+
+    // Check if we should use @react-native-community/cli for RN 0.77+
+    let shouldUseCommunityCliCommand = false;
+    try {
+      const packageJsonPath = path.join(cwd, 'package.json');
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = fs.readJSONSync(packageJsonPath);
+        const rnVersion = packageJson.dependencies?.['react-native'] || '0.60.0';
+        shouldUseCommunityCliCommand = semver.gte(rnVersion.replace(/[\^~]/, ''), '0.77.0');
+      }
+    } catch (e) {
+      // If we can't determine version, use legacy approach
+    }
+
+    if (shouldUseCommunityCliCommand) {
+      spawn('npx', ['@react-native-community/cli', 'start', ...args], {
         cwd,
         stdio: 'inherit',
-      },
-    );
+      });
+    } else {
+      spawn(
+        path.join(
+          cwd,
+          `node_modules/.bin/react-native${
+            os.platform() === 'win32' ? '.cmd' : ''
+          }`,
+        ),
+        ['start', ...args],
+        {
+          cwd,
+          stdio: 'inherit',
+        },
+      );
+    }
   }
 
   public async startPackagerInNewWindow({
@@ -261,12 +322,28 @@ ${resetCache ? '--reset-cache' : ''}`;
   }): Promise<string> {
     const tmpDir = createTmpDir();
     const tmpScriptPath = path.join(tmpDir, scriptFileName);
+
+    // Check if we should use @react-native-community/cli for RN 0.77+
+    let command = `${this.binaryPath} start ${args.join(' ')}`;
+    try {
+      const packageJsonPath = path.join(cwd, 'package.json');
+      if (await fs.pathExists(packageJsonPath)) {
+        const packageJson = await fs.readJSON(packageJsonPath);
+        const rnVersion = packageJson.dependencies?.['react-native'] || '0.60.0';
+        if (semver.gte(rnVersion.replace(/[\^~]/, ''), '0.77.0')) {
+          command = `npx @react-native-community/cli start ${args.join(' ')}`;
+        }
+      }
+    } catch (e) {
+      // If we can't determine version, use legacy approach
+    }
+
     await fs.writeFile(
       tmpScriptPath,
       `
 cd ${cwd}
-echo "Running ${this.binaryPath} start ${args.join(' ')}"
-${this.binaryPath} start ${args.join(' ')}
+echo "Running ${command}"
+${command}
 `,
     );
     shell.chmod('+x', tmpScriptPath);
