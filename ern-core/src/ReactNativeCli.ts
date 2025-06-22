@@ -36,24 +36,29 @@ export default class ReactNativeCli {
     this.binaryPath = binaryPath;
   }
 
-  private async shouldUseCommunityCliForVersion(rnVersion: string): Promise<boolean> {
+  private async shouldUseCommunityCliForVersion(
+    rnVersion: string,
+  ): Promise<boolean> {
     return semver.gte(rnVersion.replace(/[\^~]/, ''), '0.77.0');
   }
 
-  private async shouldUseCommunityCliForProject(cwd?: string): Promise<boolean> {
+  private async shouldUseCommunityCliForProject(
+    cwd?: string,
+  ): Promise<boolean> {
     if (!cwd) return false;
-    
+
     try {
       const packageJsonPath = path.join(cwd, 'package.json');
       if (await fs.pathExists(packageJsonPath)) {
         const packageJson = await fs.readJSON(packageJsonPath);
-        const rnVersion = packageJson.dependencies?.['react-native'] || '0.60.0';
+        const rnVersion =
+          packageJson.dependencies?.['react-native'] || '0.60.0';
         return this.shouldUseCommunityCliForVersion(rnVersion);
       }
     } catch (e) {
       // If we can't determine version, use legacy approach
     }
-    
+
     return false;
   }
 
@@ -117,8 +122,9 @@ export default class ReactNativeCli {
     resetCache?: boolean;
   }): Promise<BundlingResult> {
     // For React Native 0.77.0+ use @react-native-community/cli
-    const shouldUseCommunityCliForProject = await this.shouldUseCommunityCliForProject(workingDir);
-    
+    const shouldUseCommunityCliForProject =
+      await this.shouldUseCommunityCliForProject(workingDir);
+
     let bundleCommand: string;
     if (shouldUseCommunityCliForProject) {
       bundleCommand = `npx @react-native-community/cli bundle \
@@ -188,8 +194,12 @@ ${resetCache ? '--reset-cache' : ''}`;
       const packageJsonPath = path.join(cwd, 'package.json');
       if (fs.existsSync(packageJsonPath)) {
         const packageJson = fs.readJSONSync(packageJsonPath);
-        const rnVersion = packageJson.dependencies?.['react-native'] || '0.60.0';
-        shouldUseCommunityCliCommand = semver.gte(rnVersion.replace(/[\^~]/, ''), '0.77.0');
+        const rnVersion =
+          packageJson.dependencies?.['react-native'] || '0.60.0';
+        shouldUseCommunityCliCommand = semver.gte(
+          rnVersion.replace(/[\^~]/, ''),
+          '0.77.0',
+        );
       }
     } catch (e) {
       // If we can't determine version, use legacy approach
@@ -204,9 +214,7 @@ ${resetCache ? '--reset-cache' : ''}`;
       spawn(
         path.join(
           cwd,
-          `node_modules/.bin/react-native${
-            os.platform() === 'win32' ? '.cmd' : ''
-          }`,
+          `node_modules/.bin/rnc-cli${os.platform() === 'win32' ? '.cmd' : ''}`,
         ),
         ['start', ...args],
         {
@@ -329,7 +337,8 @@ ${resetCache ? '--reset-cache' : ''}`;
       const packageJsonPath = path.join(cwd, 'package.json');
       if (await fs.pathExists(packageJsonPath)) {
         const packageJson = await fs.readJSON(packageJsonPath);
-        const rnVersion = packageJson.dependencies?.['react-native'] || '0.60.0';
+        const rnVersion =
+          packageJson.dependencies?.['react-native'] || '0.60.0';
         if (semver.gte(rnVersion.replace(/[\^~]/, ''), '0.77.0')) {
           command = `npx @react-native-community/cli start ${args.join(' ')}`;
         }

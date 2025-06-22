@@ -70,7 +70,24 @@ describe('Test AndroidRunnerGenerator for RN version 0.72.x', () => {
     targetPlatform: 'android',
   };
 
-  describe('Test AndroidRunnerGenerator for RN version 0.77.x', () => {
+  it('should generate simple-android-runner fixture given same configuration', async () => {
+    await new AndroidRunnerGenerator().generate(generatorConfig);
+    assert(
+      sameDirContent(fixtureRunnerPath, generatedRunnerPath),
+      'Generated Android Runner project differs from simple-android-runner fixture',
+    );
+  });
+
+  it('should re-generate configuration of simple-android-runner fixture given same configuration', async () => {
+    await new AndroidRunnerGenerator().regenerateRunnerConfig(generatorConfig);
+    assert(
+      sameDirContent(fixtureRunnerPath, generatedRunnerPath),
+      'Generated Android Runner project differs from simple-android-runner fixture',
+    );
+  });
+});
+
+describe('Test AndroidRunnerGenerator for RN version 0.77.x', () => {
   const fixtureRunnerPath = path.join(
     __dirname,
     'fixtures',
@@ -110,3 +127,4 @@ describe('Test AndroidRunnerGenerator for RN version 0.72.x', () => {
     );
   });
 });
+
