@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import path from 'path';
 import fs from 'fs-extra';
 import { applyYarnResolutions } from '../src/applyYarnResolutions';
+import { addRNDepToPjson } from '../src/addRNDepToPjson';
 import { generateComposite } from '../src/generateComposite';
 import {
   getMiniAppsDeltas,
@@ -529,6 +530,60 @@ describe('ern-container-gen utils.js', () => {
       expect(metroConfig.resolver.extraNodeModules)
         .to.have.property('pkg-b')
         .which.equals(path.join('/absolute/path/to/new-pkg-b'));
+    });
+  });
+
+  describe('addRNDepToPjson', () => {
+    it('should add react-native dependency to package.json', async () => {
+      const packageJsonPath = path.join(tmpOutDir, 'package.json');
+      fs.writeFileSync(packageJsonPath, JSON.stringify({ dependencies: {} }));
+
+      await addRNDepToPjson(tmpOutDir, '0.72.0');
+
+      const packageJson: any = JSON.parse(
+        fs.readFileSync(packageJsonPath).toString(),
+      );
+      expect(packageJson.dependencies).to.have.property('react-native', '0.72.0');
+      expect(packageJson.dependencies).to.not.have.property('@react-native/metro-config');
+    });
+
+    it('should add both react-native and @react-native/metro-config for RN >= 0.73.0', async () => {
+      const packageJsonPath = path.join(tmpOutDir, 'package.json');
+      fs.writeFileSync(packageJsonPath, JSON.stringify({ dependencies: {} }));
+
+      await addRNDepToPjson(tmpOutDir, '0.73.0');
+
+      const packageJson: any = JSON.parse(
+        fs.readFileSync(packageJsonPath).toString(),
+      );
+      expect(packageJson.dependencies).to.have.property('react-native', '0.73.0');
+      expect(packageJson.dependencies).to.have.property('@react-native/metro-config', '0.73.0');
+    });
+
+    it('should add both react-native and @react-native/metro-config for RN > 0.73.0', async () => {
+      const packageJsonPath = path.join(tmpOutDir, 'package.json');
+      fs.writeFileSync(packageJsonPath, JSON.stringify({ dependencies: {} }));
+
+      await addRNDepToPjson(tmpOutDir, '0.74.1');
+
+      const packageJson: any = JSON.parse(
+        fs.readFileSync(packageJsonPath).toString(),
+      );
+      expect(packageJson.dependencies).to.have.property('react-native', '0.74.1');
+      expect(packageJson.dependencies).to.have.property('@react-native/metro-config', '0.74.1');
+    });
+
+    it('should not add @react-native/metro-config for RN < 0.73.0', async () => {
+      const packageJsonPath = path.join(tmpOutDir, 'package.json');
+      fs.writeFileSync(packageJsonPath, JSON.stringify({ dependencies: {} }));
+
+      await addRNDepToPjson(tmpOutDir, '0.72.99');
+
+      const packageJson: any = JSON.parse(
+        fs.readFileSync(packageJsonPath).toString(),
+      );
+      expect(packageJson.dependencies).to.have.property('react-native', '0.72.99');
+      expect(packageJson.dependencies).to.not.have.property('@react-native/metro-config');
     });
   });
 });
