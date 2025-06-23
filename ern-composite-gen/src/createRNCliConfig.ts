@@ -14,21 +14,7 @@ export async function createRNCliConfig({
 
   if (useNewRNCLIConfig) {
     // For React Native 0.73+, create a more comprehensive react-native.config.js
-    const rnCliConfig = `module.exports = {
-  resolver: {
-    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'mjs']
-  },
-  platforms: {
-    ios: {
-      sourceDir: '../ios',
-      folder: 'ios'
-    },
-    android: {
-      sourceDir: '../android',
-      folder: 'android'
-    }
-  }
-};`;
+    const rnCliConfig = `module.exports = { resolver: { sourceExts: ['jsx', 'js', 'ts', 'tsx', 'mjs'] } };`;
     await fs.writeFile(path.join(cwd, 'react-native.config.js'), rnCliConfig);
   } else {
     // Legacy RN CLI config for older versions
