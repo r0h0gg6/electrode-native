@@ -55,21 +55,21 @@ export async function generateComposite(config: CompositeGeneratorConfig) {
 
   return config.baseComposite
     ? generateCompositeFromBase(
-        config.miniApps,
-        config.outDir,
-        config.baseComposite,
-        {
-          extraJsDependencies: config.extraJsDependencies,
-          jsApiImplDependencies: config.jsApiImplDependencies,
-        },
-      )
-    : generateFullComposite(config.miniApps, config.outDir, {
+      config.miniApps,
+      config.outDir,
+      config.baseComposite,
+      {
         extraJsDependencies: config.extraJsDependencies,
         jsApiImplDependencies: config.jsApiImplDependencies,
-        metroExtraNodeModules: config.metroExtraNodeModules,
-        pathToYarnLock: config.pathToYarnLock,
-        resolutions: config.resolutions,
-      });
+      },
+    )
+    : generateFullComposite(config.miniApps, config.outDir, {
+      extraJsDependencies: config.extraJsDependencies,
+      jsApiImplDependencies: config.jsApiImplDependencies,
+      metroExtraNodeModules: config.metroExtraNodeModules,
+      pathToYarnLock: config.pathToYarnLock,
+      resolutions: config.resolutions,
+    });
 }
 
 async function generateCompositeFromBase(
@@ -324,7 +324,7 @@ You should resolve the following version mismatches prior to retrying.${os.EOL}`
       watchFolders: localMiniAppsPaths,
     });
     if (semver.gte(rnVersion, '0.57.0')) {
-      await createRNCliConfig({ cwd: outDir });
+      await createRNCliConfig({ cwd: outDir, reactNativeVersion: rnVersion });
     }
     await addRNDepToPjson(outDir, rnVersion);
     if (semver.lt(rnVersion, '0.60.0')) {
