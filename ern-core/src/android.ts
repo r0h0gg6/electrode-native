@@ -23,6 +23,7 @@ export const DEFAULT_JSC_VARIANT = 'android-jsc';
 export const DEFAULT_KOTLIN_VERSION = '2.0.21';
 export const DEFAULT_MIN_SDK_VERSION_PRE_RN64 = '19';
 export const DEFAULT_MIN_SDK_VERSION_POST_RN64 = '21';
+export const DEFAULT_MIN_SDK_VERSION_POST_RN77 = '24';
 export const DEFAULT_SUPPORT_LIBRARY_VERSION = '28.0.0';
 export const DEFAULT_TARGET_SDK_VERSION = '35';
 export const DEFAULT_SOURCE_COMPATIBILITY = 'VERSION_17';
@@ -83,9 +84,11 @@ export function resolveAndroidVersions({
 } = {}): AndroidResolvedVersions {
   const resolvedMinSdkVersion = minSdkVersion
     ? minSdkVersion
-    : semver.gte(reactNativeVersion!, '0.64.0')
-      ? DEFAULT_MIN_SDK_VERSION_POST_RN64
-      : DEFAULT_MIN_SDK_VERSION_PRE_RN64;
+    : semver.gte(reactNativeVersion!, '0.77.0')
+      ? DEFAULT_MIN_SDK_VERSION_POST_RN77
+      : semver.gte(reactNativeVersion!, '0.64.0')
+        ? DEFAULT_MIN_SDK_VERSION_POST_RN64
+        : DEFAULT_MIN_SDK_VERSION_PRE_RN64;
 
   reactNativeAarVersion = reactNativeAarVersion ?? reactNativeVersion!;
   const resolvedRNGradlePlugin =

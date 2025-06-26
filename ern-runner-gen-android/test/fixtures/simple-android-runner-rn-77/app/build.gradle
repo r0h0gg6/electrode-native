@@ -19,7 +19,7 @@ android {
     buildToolsVersion "35.0.0"
     defaultConfig {
         applicationId "com.walmartlabs.ern.dummy"
-        minSdkVersion 26
+        minSdkVersion 24
         targetSdkVersion 35
         versionCode 1
         versionName "1.0"
@@ -47,6 +47,9 @@ android {
 dependencies {
     // Recompile this dependency on every build as it can be updated at any time (snapshot)
     implementation('com.walmartlabs.ern:runner-ern-container-dummy:1.0.0') { changing = true }
+    implementation "androidx.appcompat:appcompat:1.1.0"
+    // Direct React Native dependency required for app module to find React Native classes
+    implementation "com.facebook.react:react-android:0.77.2"
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {

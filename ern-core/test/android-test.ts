@@ -223,7 +223,7 @@ describe('android.js', () => {
         compileSdkVersion: android.DEFAULT_COMPILE_SDK_VERSION,
         gradleDistributionVersion: android.DEFAULT_GRADLE_DISTRIBUTION_VERSION,
         kotlinVersion: android.DEFAULT_KOTLIN_VERSION,
-        minSdkVersion: android.DEFAULT_MIN_SDK_VERSION_POST_RN64,
+        minSdkVersion: android.DEFAULT_MIN_SDK_VERSION_POST_RN77,
         reactNativeAarVersion: '0.77.0',
         sourceCompatibility: android.DEFAULT_SOURCE_COMPATIBILITY,
         supportLibraryVersion: android.DEFAULT_SUPPORT_LIBRARY_VERSION,

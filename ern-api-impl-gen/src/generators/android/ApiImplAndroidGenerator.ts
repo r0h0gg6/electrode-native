@@ -119,7 +119,12 @@ export default class ApiImplAndroidGenerator implements ApiImplGeneratable {
         reactNativeVersion,
         outputDirectory,
       );
-      await this.updateBuildGradle(paths, reactNativeVersion, outputDirectory);
+      await this.updateBuildGradle(
+        apiDependency,
+        paths,
+        reactNativeVersion,
+        outputDirectory,
+      );
     } finally {
       shell.popd();
     }
@@ -154,6 +159,7 @@ export default class ApiImplAndroidGenerator implements ApiImplGeneratable {
   }
 
   public updateBuildGradle(
+    apiDependency: PackagePath,
     paths: any,
     reactNativeVersion: string,
     outputDirectory: string,

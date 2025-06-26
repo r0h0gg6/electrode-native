@@ -558,6 +558,9 @@ describe('ern-container-gen utils.js', () => {
       );
       expect(packageJson.dependencies).to.have.property('react-native', '0.73.0');
       expect(packageJson.dependencies).to.have.property('@react-native/metro-config', '0.73.0');
+      expect(packageJson.dependencies).to.have.property('@react-native/babel-preset', '0.73.0');
+      expect(packageJson.dependencies).to.have.property('@react-native-community/cli-platform-android', '^13.0.0');
+      expect(packageJson.dependencies).to.have.property('@react-native-community/cli-platform-ios', '^13.0.0');
     });
 
     it('should add both react-native and @react-native/metro-config for RN > 0.73.0', async () => {
@@ -571,6 +574,9 @@ describe('ern-container-gen utils.js', () => {
       );
       expect(packageJson.dependencies).to.have.property('react-native', '0.74.1');
       expect(packageJson.dependencies).to.have.property('@react-native/metro-config', '0.74.1');
+      expect(packageJson.dependencies).to.have.property('@react-native/babel-preset', '0.74.1');
+      expect(packageJson.dependencies).to.have.property('@react-native-community/cli-platform-android', '^13.0.0');
+      expect(packageJson.dependencies).to.have.property('@react-native-community/cli-platform-ios', '^13.0.0');
     });
 
     it('should not add @react-native/metro-config for RN < 0.73.0', async () => {

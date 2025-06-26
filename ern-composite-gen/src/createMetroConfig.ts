@@ -20,88 +20,54 @@ export async function createMetroConfig({
   watchFolders?: string[];
   reactNativeVersion: string;
 }) {
-  // Check if we need to use the new Metro config format (React Native 0.73+)
+  // For React Native 0.73+, use the new Metro config format that extends @react-native/metro-config
   const useNewMetroConfig = semver.gte(reactNativeVersion, '0.73.0');
 
-  if (useNewMetroConfig) {
-    // Use the new Metro config format that extends @react-native/metro-config
-    return fs.writeFile(
-      path.join(cwd ?? path.resolve(), 'metro.config.js'),
-      beautify.js(`const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+  let metroConfigContent: string;
 
-/**
- * Metro configuration
- * https://reactnative.dev/docs/metro
- *
- * @type {import('@react-native/metro-config').MetroConfig}
- */
+  if (useNewMetroConfig) {
+    // New Metro config format for React Native 0.73+
+    metroConfigContent = `const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const defaultConfig = getDefaultConfig(__dirname);
+
 const config = {
   ${projectRoot ? `projectRoot: "${projectRoot}",` : ''}
   ${watchFolders
-          ? `watchFolders: [
+        ? `watchFolders: [
         ${watchFolders
-            .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
-            .join(`,${os.EOL}`)}
+          .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
+          .join(`,${os.EOL}`)}
       ],`
-          : ''
-        }
+        : ''
+      }
   resolver: {
-    ${blacklistRe ? `blockList: [
+    ...defaultConfig.resolver,
+    ${extraNodeModules
+        ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
+        : ''
+      }
+    assetExts: [
+      ...defaultConfig.resolver.assetExts,
+      // Archives (virtual files)
+      "zip"
+    ],
+    sourceExts: [
+      ...defaultConfig.resolver.sourceExts,
+      "svg", 
+      "mjs"
+    ],
+    blockList: [
       // Ignore IntelliJ directories
       /.*\\.idea\\/.*/,
       // ignore git directories
       /.*\\.git\\/.*/,
       // Ignore android directories
       /.*\\/app\\/build\\/.*/,
-      ${blacklistRe.join(`,${os.EOL}`)}
-    ],` : `blockList: [
-      // Ignore IntelliJ directories
-      /.*\\.idea\\/.*/,
-      // ignore git directories
-      /.*\\.git\\/.*/,
-      // Ignore android directories
-      /.*\\/app\\/build\\/.*/
-    ],`}
-    ${extraNodeModules
-          ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
-          : ''
-        }
-    assetExts: [
-      // Image formats
-      "bmp",
-      "gif",
-      "jpg",
-      "jpeg",
-      "png",
-      "psd",
-      "webp",
-      // Video formats
-      "m4v",
-      "mov",
-      "mp4",
-      "mpeg",
-      "mpg",
-      "webm",
-      // Audio formats
-      "aac",
-      "aiff",
-      "caf",
-      "m4a",
-      "mp3",
-      "wav",
-      // Document formats
-      "html",
-      "pdf",
-      // Font formats
-      "otf",
-      "ttf",
-      // Archives (virtual files)
-      "zip"
+      ${blacklistRe ? blacklistRe.join(`,${os.EOL}`) : ''}
     ],
-    sourceExts: ["js", "json", "ts", "tsx", "svg", "mjs"],
-    platforms: ['ios', 'android', 'native', 'web']
   },
   transformer: {
+    ...defaultConfig.transformer,
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
@@ -113,26 +79,22 @@ const config = {
   },
 };
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
-`),
-    );
+module.exports = mergeConfig(defaultConfig, config);`;
   } else {
-    // Use the legacy Metro config format for older React Native versions
-    return fs.writeFile(
-      path.join(cwd ?? path.resolve(), 'metro.config.js'),
-      beautify.js(`const blacklist = require('${getMetroBlacklistPath(
-        reactNativeVersion,
-      )}');
+    // Legacy Metro config format for React Native < 0.73
+    metroConfigContent = `const blacklist = require('${getMetroBlacklistPath(
+      reactNativeVersion,
+    )}');
 module.exports = {
   ${projectRoot ? `projectRoot: "${projectRoot}",` : ''}
   ${watchFolders
-          ? `watchFolders: [
+        ? `watchFolders: [
         ${watchFolders
-            .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
-            .join(`,${os.EOL}`)}
+          .map((x) => `"${x.replace(/\\/g, '\\\\')}"`)
+          .join(`,${os.EOL}`)}
       ],`
-          : ''
-        }
+        : ''
+      }
   resolver: {
     blacklistRE: blacklist([
       // Ignore IntelliJ directories
@@ -144,9 +106,9 @@ module.exports = {
       ${blacklistRe ? blacklistRe.join(`,${os.EOL}`) : ''}
     ]),
     ${extraNodeModules
-          ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
-          : ''
-        }
+        ? `extraNodeModules: ${JSON.stringify(extraNodeModules, null, 2)},`
+        : ''
+      }
     assetExts: [
       // Image formats
       "bmp",
@@ -180,7 +142,6 @@ module.exports = {
       "zip"
     ],
     sourceExts: ["js", "json", "ts", "tsx", "svg", "mjs"],
-    platforms: ['ios', 'android', 'native', 'web']
   },
   transformer: {
     getTransformOptions: async () => ({
@@ -192,8 +153,11 @@ module.exports = {
     assetPlugins: ['ern-bundle-store-metro-asset-plugin'],
     babelTransformerPath: require.resolve("react-native-svg-transformer"),
   },
-};
-`),
-    );
+};`;
   }
+
+  return fs.writeFile(
+    path.join(cwd ?? path.resolve(), 'metro.config.js'),
+    beautify.js(metroConfigContent),
+  );
 }
