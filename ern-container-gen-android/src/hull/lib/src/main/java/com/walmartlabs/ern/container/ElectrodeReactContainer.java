@@ -41,6 +41,10 @@ import com.facebook.react.shell.MainReactPackage;
 {{#RN_VERSION_GTE_60_1}}
 import com.facebook.soloader.SoLoader;
 {{/RN_VERSION_GTE_60_1}}
+{{#RN_VERSION_GTE_77}}
+import com.facebook.react.soloader.OpenSourceMergedSoMapping;
+import com.facebook.soloader.SoLoader;
+{{/RN_VERSION_GTE_77}}
 {{#isCodePushPluginIncluded}}
 import com.microsoft.codepush.react.CodePush;
 import com.microsoft.codepush.react.ReactInstanceHolder;
@@ -152,7 +156,11 @@ public class ElectrodeReactContainer {
             sConfig = reactContainerConfig;
 
 {{#RN_VERSION_GTE_60_1}}
-            SoLoader.init(application, /* native exopackage */ false);
+            try {
+                SoLoader.init(application, OpenSourceMergedSoMapping.INSTANCE);
+            } catch (java.io.IOException e) {
+                throw new RuntimeException("Failed to initialize SoLoader", e);
+            }
 {{/RN_VERSION_GTE_60_1}}
 
             // ReactNative general config

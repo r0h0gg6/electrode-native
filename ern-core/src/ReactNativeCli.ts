@@ -91,7 +91,7 @@ export default class ReactNativeCli {
 
     if (semver.gte(rnVersion, '0.77.0')) {
       return execp(
-        `npx --ignore-existing @react-native-community/cli@15.0.1 ${initCmd}`,
+        `npx @react-native-community/cli@15.0.1 ${initCmd}`,
       );
     } else if (semver.gte(rnVersion, '0.60.0')) {
       return execp(

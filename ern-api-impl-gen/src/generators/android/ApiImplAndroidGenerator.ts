@@ -1,6 +1,7 @@
 import {
   android,
   fileUtils,
+  injectReactNativeVersionKeysInObject,
   log,
   manifest,
   mustacheUtils,
@@ -171,6 +172,7 @@ export default class ApiImplAndroidGenerator implements ApiImplGeneratable {
     });
     mustacheView.reactNativeVersion = reactNativeVersion;
     mustacheView = Object.assign(mustacheView, versions);
+    injectReactNativeVersionKeysInObject(mustacheView, reactNativeVersion);
     mustacheUtils.mustacheRenderToOutputFileUsingTemplateFile(
       path.join(paths.apiImplHull, 'android/build.gradle'),
       mustacheView,
@@ -191,6 +193,7 @@ export default class ApiImplAndroidGenerator implements ApiImplGeneratable {
     let mustacheView: any = {};
     const versions = android.resolveAndroidVersions({ reactNativeVersion });
     mustacheView = Object.assign(mustacheView, versions);
+    injectReactNativeVersionKeysInObject(mustacheView, reactNativeVersion);
     return mustacheUtils.mustacheRenderToOutputFileUsingTemplateFile(
       path.join(
         paths.apiImplHull,
